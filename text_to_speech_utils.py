@@ -8,18 +8,40 @@ import difflib
 import enum
 from typing import List
 import dataclasses
+import time
 
 
-class VoiceStyle(enum.Enum):
+class VoiceStyle(enum.Enum): #Davis
+    DEFAULT = 'default'
     ANGRY = 'angry'
     CHEERFUL = 'cheerful'
     SAD = 'sad'
+    CHAT = 'chat'
+    FRIENDLY = 'friendly'
+    EXCITED = 'excited'
+    HOPEFUL = 'hopeful'
+    SHOUTING = 'shouting'
+    WHISPERING = 'whispering'
+    TERRIFIED = 'terrified'
+
+
+
+class VoiceRoles(enum.Enum):
+    GIRL = 'girl'
+    BOY = 'boy'
+    YOUNGADULTFEMALE = 'YoungAdultFemale'
+    YOUNGADULTMALE = 'YoungAdultMale'
+    OLDERADULTFEMALE = 'OlderAdultFemale'
+    OLDERADULTMALE = 'OlderAdultMale'
+    SENIORMALE = 'SeniorMale'
+    SENIORFEMALE = 'SeniorFemale'
+
 
 @dataclasses.dataclass
 class StyledPhrase:
-    phrase: str
     voice_style: VoiceStyle
     intensity: int  # 0.01 - 2
+    phrase: str
 
 priv_key = open('priv_key.txt', 'r')
 priv_key = priv_key.read()
@@ -39,8 +61,8 @@ class TextEmotion(object):
 def xml_builder(voice_name: str, phrases: List[StyledPhrase]):
     express_as_elems = []
     for phrase in phrases:
-        express_as_elems = (
-            f'<mstts:express-as style="{phrase.voice_style.value}" styledegree="{phrase.style_intensity.value}">'
+        express_as_elems.append(
+            f'<mstts:express-as style="{phrase.voice_style.value}" styledegree="{phrase.intensity}">'
             f'{phrase.phrase}'
             f'</mstts:express-as>'
         )
@@ -56,17 +78,17 @@ def xml_builder(voice_name: str, phrases: List[StyledPhrase]):
 
 
 def parse_input(raw_input: str):
-    if '/a' in raw_input:
-        angry_index = raw_input.find('/a')
+    if '/e' in raw_input:
+        angry_index = raw_input.find('/e')
         mod_str = raw_input[angry_index:angry_index+raw_input[angry_index:].find(' ')]
         mod_str = mod_str.strip()
         mod_str = mod_str[2:]
         try:
             intensity = int(mod_str)
             intensity = min(2.0, max(0.01, intensity))
-            return VoiceStyle.ANGRY, intensity, raw_input.replace('/a', '')
+            return VoiceStyle.EXCITED, intensity, raw_input.replace('/a', '')
         except ValueError:
-            return VoiceStyle.ANGRY, 1.0, raw_input.replace('/a', '')
+            return VoiceStyle.EXCITED, .2, raw_input.replace('/e', '')
         
     if '/d' in raw_input:
         angry_index = raw_input.find('/d')
@@ -81,7 +103,7 @@ def parse_input(raw_input: str):
             return VoiceStyle.SAD, 1.0, raw_input.replace('/d', '')
         
     else:
-        return VoiceStyle.CHEERFUL, 1.0, raw_input.replace('/d', '')
+        return VoiceStyle.CHAT, 1.0, raw_input.replace('/d', '')
         
 
 
@@ -99,9 +121,9 @@ class BeMyVoice(object):
         # speech_config.speech_synthesis_voice_name = self.voice
         self.speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
     def speak(self):
+       
         # This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
         speech_synthesis_result = self.speech_synthesizer.speak_ssml_async(self.xml_string).get()
-
         if speech_synthesis_result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
             print("Speech synthesized for text [{}]".format('no error'))
         elif speech_synthesis_result.reason == speechsdk.ResultReason.Canceled:
