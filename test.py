@@ -21,7 +21,7 @@ import socketio
 
 chat_txt = 'Hey team! I had a great weekend.'
 happy_txt ='My grandkids and I went to the Boston Commons! /e'
-sad_text = 'On the other hand, I got food poisoning. /d'
+sad_text = "On the other hand, I got food poisoning. So I actually didn't get much work done. /d"
 
 style_chat,intensity_chat,text_chat = parse_input(chat_txt)
 style_happy,intensity_happy,text_happy = parse_input(happy_txt)

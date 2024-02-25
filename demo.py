@@ -19,6 +19,7 @@ if __name__=="__main__":
         while True:
             
             raw_input = input("write what to display: \n\n")
+            print(sio.input_buffer)
             if sio.input_buffer[-1][0] == 'text_entry':
                 text = sio.input_buffer[-1][1]['message']
                 style,intensity,text = parse_input(text)
